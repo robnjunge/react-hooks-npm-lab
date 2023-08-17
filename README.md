@@ -34,17 +34,13 @@ functionality in new code we write.
 
 ## Getting Started
 
-Before we create our `package.json` file, take a moment to look at the
-`package.json` file that is already at the top level of the directory for this
-code-along. If you look at the "name" attribute at the top, you will see that it
-is the same as the name of the directory, `react-hooks-npm-lab`. This is the
-`package.json` file that belongs to this code-along; you **should not** make any
-changes to this file! Instead, we will build out a simple application **within**
-this lesson's directory and create a `package.json` file for that application.
+Before we can create a `package.json` file, we'll need a project and a project
+folder to contain all the files. For this code-along, we'll be building out a
+clock application that changes color every second.
 
-Note that this lesson's files include a sub-folder, `color-clock`, that contains
-some basic starter files for a project. If you look at `color-clock/index.html`,
-you'll see a script tag:
+In this lesson, a sub-folder has been created for us to use, `color-clock`, that
+contains some basic starter files for a project. If you look at
+`color-clock/index.html`, you'll see a script tag:
 
 ```html
 <script src="index.js" type="module"></script>
@@ -63,12 +59,11 @@ do not need to change `index.js`**. Instead, we will need to set up a
 The first thing to do is change directory into this folder in your terminal by
 typing the command `cd color-clock`.
 
-The next step is to create a `package.json` file in the `color-clock` directory,
-which in turn will be where the `node_modules` folder is.
-
-**Important:** to avoid overwriting the `package.json` file for this code-along
-be sure to change directory into `color-clock` before creating the
-`package.json` file!
+> **Note**: The next step will create a `package.json` file in whatever
+> directory you are in, which in turn will be where the `node_modules` folder
+> is. If you do not change directory into `color-clock`, you'll end up creating
+> a file in the main directory of this lesson, and `color-clock/index.js` will
+> be looking for `node_modules` in the wrong directory.
 
 ### Create a package.json File
 
@@ -87,8 +82,7 @@ directory.
 ### Add a Script
 
 In the process of creating the `package.json` file, you were prompted to write a
-test script. We left it blank at that time, but we can add it to the
-`package.json` file ourselves. Let's do that now to see how this works.
+test script. Let's add a working script in to see how this works.
 
 Open the newly created `package.json` file and look for a section titled
 `"scripts"`. Let's replace the default `"test"` script with a shell command:
@@ -100,21 +94,21 @@ Open the newly created `package.json` file and look for a section titled
 ```
 
 We can now call this script and have it run by using the command `npm test` in
-the terminal (if that doesn't work, try `npm run test`). You should see a
-printout of `Hello World!`.
+the terminal (if that doesn't work, try `npm run test`). You should see a print
+out of `Hello World!`.
 
 In all the JavaScript-based labs you've encountered so far, this sort of script
-is how we run tests. If you look at the `"test"` script on JavaScript labs in
-the previous phase, most will have something like this:
+is how we run tests. If you look at the `"test"` script on previous labs, most
+will have something like this:
 
 ```txt
 "test": "mocha -R mocha-multi --reporter-options spec=-,json=.results.json"
 ```
 
-The mocha command is actually a command that you can run in the terminal. This
-is a call to the testing package, `mocha`, along with a second package,
-`mocha-multi` that helps with reporting. When you run `npm test` in a lab, the
-command specified in the "test" script is what gets called.
+This is actually a command that you can run in the terminal. This is a call to
+the testing package, `mocha`, along with a second package, `mocha-multi` that
+helps with reporting. When you run `learn test` in a lab, `npm test` _gets
+called_.
 
 Scripts are often useful for things like testing or to start a necessary
 process, like a local server.
@@ -150,17 +144,16 @@ publish this repository on GitHub, other users would now be able to clone down
 the repo and install whatever is listed in `package.json` to get the program
 working.
 
-The second package we'll need to run our application in the browser is
-[`serve`][serve], which will run a lightweight server. To install it, we run:
+We'll also need one more package to run our application in the browser. Run this
+command:
 
 ```console
 $ npm install serve
 ```
 
-[serve]: https://www.npmjs.com/package/serve
-
-Next, in the `"scripts"` section in `package.json`, let's add an npm script to
-run the server using the `serve` package:
+This [`serve`](https://www.npmjs.com/package/serve) package will run a
+lightweight server. Set up another npm script to run the server using the
+`serve` package:
 
 ```json
 "scripts": {
@@ -169,57 +162,11 @@ run the server using the `serve` package:
 }
 ```
 
-If you run `npm start` to run the script and open
-[localhost:3000](http://localhost:3000) in the browser, you will see that the
-clock is not appearing. Go ahead and open the console and you'll see that
-we're getting an error:
+Run `npm start` to run this script, and open up
+[localhost:3000](http://localhost:3000) in the browser.
 
-```console
-Uncaught TypeError: Failed to resolve module specifier "@babel/runtime/helpers/esm/typeof". Relative references must start with either "/", "./", or "../".
-```
-
-The specifics of this error are beyond the scope of this lesson, but basically
-what it means is that not all of the files in our project are currently set up
-to be interpretable by the browser. Before we can get our clock running
-correctly, we need to install one more tool, `esbuild`. `esbuild` is a
-JavaScript bundler, which is a tool that handles all of a project's
-dependencies, and combines the code into a single file that is browser-ready.
-There are a number of different JavaScript bundlers available; we're using
-`esbuild` because it is relatively easy to configure and works fine for our
-simple application.
-
-Stop the server with `ctrl-c`, then install `esbuild`:
-
-```console
-$ npm install esbuild
-```
-
-Then we'll add one more script to run the build:
-
-```json
-"scripts": {
-  "test": "echo 'Hello World!'",
-  "start": "serve",
-  "build": "esbuild index.js --bundle --outfile=dist/out.js"
-}
-```
-
-When we run a build using `esbuild`, it makes sure that all the dependencies are
-included and up to date, and combines the code from multiple files into a single
-file that is ready to be loaded in the browser. Note that the name of this file
-is specified in the build command above: `dist/out.js`.
-
-Go ahead and run `npm run build`. You should now see the `dist` folder in your
-file tree and the `out.js` file inside it. The final step is to update the
-script in the `index.html` file to use this new file. Find this line:
-
-```html
-<script src="index.js" type="module"></script>
-```
-
-Change the `src` property to `dist/out.js`. Now we're finally ready to start the
-server. Run `npm start` then open up [localhost:3000](http://localhost:3000) in
-the browser. You should now see a colorful clock appear!
+If `package.json` file has the correct package, and the node module has been
+installed, you should see a colorful clock appear!
 
 ## Conclusion
 
